@@ -36,4 +36,4 @@ cd app
 streamlit run app/app.py 
 ```
 
-Now, you can see the dashboard on the IP Address in the terminal or you can click [here](http://10.79.0.30:8501)
+Now, you can see the dashboard on the IP Address in the terminal or you can click [here](https://petrodash.streamlit.app/)

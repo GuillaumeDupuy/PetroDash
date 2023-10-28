@@ -1,12 +1,17 @@
+# IMPORT LIBRAIRIES
 import streamlit as st
 import pandas as pd
 import requests
 import datetime
 import os
 import altair as alt
+import pydeck as pdk
+import pyproj
 
+# GET PWD
 cwd = os.getcwd()
 
+# DOWNLOAD DATA IN CACHE
 @st.cache_data
 def load_data_df():
     """Load dataset in cache"""
@@ -21,6 +26,7 @@ st.set_page_config(
     page_icon="⛽"
 )
 
+# LOAD DATAFRAME
 df_price = load_data_df()
 
 # PAGE
@@ -29,6 +35,8 @@ st.title('Price of fuels in France')
 
 # if st.checkbox("See all dataframe", False):
 #     st.dataframe(df_price)
+
+# PRE-PROCESSING
 
 # Un tableau contenant tous les noms de région
 name_regions = df_price['region'].unique()
@@ -58,6 +66,8 @@ summary = [
 
 df_summary = pd.DataFrame(summary)
 
+# GRAPHIC
+
 # Affichage du nombre de stations par carburant
 
 st.title('Number of stations per fuel')
@@ -68,7 +78,6 @@ bar_chart = alt.Chart(df_summary).mark_bar().encode(
 )
 
 st.altair_chart(bar_chart, use_container_width=True)
-# st.bar_chart(df_summary.set_index('Carburant'))
 
 # Affichage du prix moyen par carburant
 
@@ -149,6 +158,8 @@ bar_chart = alt.Chart(df_summary_price_region).transform_fold(
 
 st.altair_chart(bar_chart, use_container_width=True)
 
+# SEARCH CITY
+
 if st.checkbox("See the average price for a city",False):
     ville = st.selectbox("Write or choose the city for which you want to see the average price",name_villes)
 
@@ -176,6 +187,8 @@ if st.checkbox("See the average price for a city",False):
     )
 
     st.altair_chart(bar_chart, use_container_width=True)
+
+# SEARCH REGION
 
 if st.checkbox("See the evolution of price of fuel per region",False):
     region = st.selectbox("Write or choose the region for which you want to see",name_regions)
@@ -205,3 +218,45 @@ if st.checkbox("See the evolution of price of fuel per region",False):
     st.title(f'Évolution du prix du {type_carburant} en fonction du temps et de la région {region}')
 
     st.altair_chart(line_chart, use_container_width=True)
+
+# MAP
+
+lat_long = df_price[(df_price['latitude'].notnull()) & (df_price['longitude'].notnull()) & (df_price['ville'].notnull())][['latitude', 'longitude','ville']]
+
+# Convertir les valeurs de latitude et longitude en décimales
+lat_long['latitude'] /= 100000
+lat_long['longitude'] /= 100000
+
+def generate_map(data):
+    view_state = pdk.ViewState(
+        latitude=48.8566,
+        longitude=2.3522,
+        zoom=4,
+        pitch=0,
+    )
+
+    layer = pdk.Layer(
+        "ScatterplotLayer",
+        data=data,
+        get_position=["longitude", "latitude"],
+        get_radius=2500,
+        get_color=[255, 0, 0],
+        pickable=True,
+        auto_highlight=True,
+    )
+
+    map_ = pdk.Deck(
+        map_style="mapbox://styles/mapbox/light-v9",
+        layers=[layer],
+        initial_view_state=view_state,
+    )
+
+    return map_
+
+st.title('Map of services stations')
+
+# Générez la carte
+map_ = generate_map(lat_long)
+
+# Affichez la carte dans l'application Streamlit
+st.pydeck_chart(map_)
