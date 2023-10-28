@@ -16,11 +16,11 @@ cwd = os.getcwd()
 def load_data_df():
     """Load dataset in cache"""
     cwd = os.getcwd()
-    df_price = pd.read_csv(cwd + '/data/prix-des-carburants-en-france-flux-instantane-v2_2023_10_27_12_33.csv', sep=';')
+    df_price = pd.read_csv(cwd + '/data/prix-des-carburants-en-france-flux-instantane-v2.csv', sep=';')
     return df_price
 
 st.set_page_config(
-    page_title="Fuels", page_icon="⛽", initial_sidebar_state="collapsed"
+    page_title="PetroDash", page_icon="⛽", initial_sidebar_state="collapsed"
 )
 
 # LOAD DATAFRAME
