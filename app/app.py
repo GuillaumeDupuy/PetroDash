@@ -48,7 +48,7 @@ name_villes = sorted(name_villes)
 
 # Un tableau contenant tous les noms de carburants
 
-name_carburants = df_price['carburants_disponibles'].str.split(';').explode().unique()
+name_carburants = df_price['carburants_disponibles'].str.split(',').explode().unique()
 name_carburants = name_carburants[~pd.isna(name_carburants)]
 
 # Dictionnaire contenant le nombre de stations par carburant
