@@ -20,10 +20,7 @@ def load_data_df():
     return df_price
 
 st.set_page_config(
-    page_title="Fuels",
-    layout="wide",
-    initial_sidebar_state='collapsed',
-    page_icon="⛽"
+    page_title="Fuels", page_icon="⛽", initial_sidebar_state="collapsed"
 )
 
 # LOAD DATAFRAME
