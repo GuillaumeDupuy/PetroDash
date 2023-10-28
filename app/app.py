@@ -2,7 +2,7 @@
 import streamlit as st
 import pandas as pd
 import requests
-import datetime
+from datetime import datetime
 import os
 import altair as alt
 import pydeck as pdk
@@ -218,11 +218,33 @@ if st.checkbox("See the evolution of price of fuel per region",False):
 
 # MAP
 
-lat_long = df_price[(df_price['latitude'].notnull()) & (df_price['longitude'].notnull()) & (df_price['ville'].notnull())][['latitude', 'longitude','ville']]
+df_price['latitude'] /= 100000
+df_price['longitude'] /= 100000
 
-# Convertir les valeurs de latitude et longitude en décimales
-lat_long['latitude'] /= 100000
-lat_long['longitude'] /= 100000
+columns_to_format = ['gazole_maj', 'sp95_maj', 'sp98_maj', 'e10_maj', 'e85_maj', 'gplc_maj']
+
+for column in columns_to_format:
+    df_price[column] = pd.to_datetime(df_price[column]).dt.strftime('%d/%m %H:%M')
+
+df_price = df_price.fillna({
+    "gazole_prix": "Not available in station",
+    "gazole_maj": "",
+    "sp95_prix": "Not available in station",
+    "sp95_maj": "",
+    "sp98_prix": "Not available in station",
+    "sp98_maj": "",
+    "e10_prix": "Not available in station",
+    "e10_maj": "",
+    "e85_prix": "Not available in station",
+    "e85_maj": "",
+    "gplc_prix": "Not available in station",
+    "gplc_maj": "",
+})
+
+for column in columns_to_format:
+    df_price[column] = df_price[column].astype(str)
+    df_price[column] = df_price[column].apply(lambda x: "{:%d/%m at %H:%M}".format(datetime.strptime(x, '%d/%m %H:%M')) if x else '')
+    df_price[column] = df_price[column].replace('', 'No Update')
 
 def generate_map(data):
     view_state = pdk.ViewState(
@@ -231,6 +253,40 @@ def generate_map(data):
         zoom=4,
         pitch=0,
     )
+
+    def custom_tooltip():
+        return {
+            "html": """
+            <div style="display: flex; flex-direction: row;">
+                <div style="flex: 1;">
+                    <b>Address</b>: {adresse}<br/>
+                    <b>City</b>: {cp} {ville}<br/>
+                </div>
+                <div style="flex: 1;">
+                    <b>Price Gazole</b>: {gazole_prix} €<br/>
+                    <b>Update on</b>: {gazole_maj}<br/>
+                    <b>Price SP98</b>: {sp98_prix} €<br/>
+                    <b>Update on</b>: {sp98_maj}<br/>
+                    <b>Price E85</b>: {e85_prix} €<br/>
+                    <b>Update on</b>: {e85_maj}<br/>
+                </div>
+                <div style="flex: 1;">
+                    
+                    <b>Price SP95</b>: {sp95_prix} €<br/>
+                    <b>Update on</b>: {sp95_maj}<br/>  
+                    <b>Price E10</b>: {e10_prix} €<br/>
+                    <b>Update on</b>: {e10_maj}<br/>
+                    <b>Price GPLc</b>: {gplc_prix} €<br/>
+                    <b>Update on</b>: {gplc_maj}<br/>
+                </div>
+            </div>
+            """,
+            "style": {
+                "backgroundColor": "white",
+                "color": "black"
+            }
+        }
+ 
 
     layer = pdk.Layer(
         "ScatterplotLayer",
@@ -246,14 +302,15 @@ def generate_map(data):
         map_style="mapbox://styles/mapbox/light-v9",
         layers=[layer],
         initial_view_state=view_state,
+        tooltip=custom_tooltip()
     )
 
     return map_
 
-st.title('Map of services stations')
+st.title('Gas Station Map')
 
 # Générez la carte
-map_ = generate_map(lat_long)
+map_ = generate_map(df_price)
 
 # Affichez la carte dans l'application Streamlit
 st.pydeck_chart(map_)
