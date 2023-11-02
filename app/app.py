@@ -273,10 +273,6 @@ df_price['brand_logo'] = df_price['brand_logo'].replace('supermarchesspar', 'spa
 df_price['brand_logo'] = df_price['brand_logo'].replace('supercasino', 'supermarchecasino')
 df_price['brand_logo'] = df_price['brand_logo'].replace('intermarchecontact', 'intermarche')
 
-
-
-st.write(df_price[['brand', 'brand_logo']])
-
 # Fonction pour générer la carte
 
 def generate_map(data):
