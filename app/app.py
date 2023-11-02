@@ -7,6 +7,7 @@ import os
 import altair as alt
 import pydeck as pdk
 import pyproj
+from PIL import Image
 
 # GET PWD
 cwd = os.getcwd()
@@ -246,6 +247,37 @@ for column in columns_to_format:
     df_price[column] = df_price[column].apply(lambda x: "{:%d/%m at %H:%M}".format(datetime.strptime(x, '%d/%m %H:%M')) if x else '')
     df_price[column] = df_price[column].replace('', 'No Update')
 
+df_brand = pd.read_csv(cwd + '/data/brand.csv')
+
+# Ajoutez la liste brand_list comme colonne "brand" au DataFrame
+df_price['brand'] = df_brand['brand']
+
+with open(cwd + '/data/brand.txt', 'r') as f:
+    brand_list = f.read().splitlines()
+
+brand_list = df_price['brand']
+brand_list = brand_list[~pd.isna(brand_list)]
+brand_list = sorted(brand_list)
+
+brand_list2 = []
+
+for brand in brand_list:
+    brand = brand.lower()
+    brand = brand.lower().replace(' ', '')
+    brand = brand.replace('.', '')
+    brand = brand.replace('à', 'a')
+    try:
+        im = Image.open(cwd + '/image/brands/' + brand + '.png')
+        brand_list2.append(brand + '.png')
+    except:
+        brand_list2.append('autre.png')
+
+df_brand = pd.DataFrame(brand_list2, columns=['logo'])
+df_brand.to_csv(cwd + '/data/brand_logo.csv', index=False)
+
+df_brand_logo = pd.read_csv(cwd + '/data/brand_logo.csv')
+df_price['brand_logo'] = df_brand_logo['logo']
+
 def generate_map(data):
     view_state = pdk.ViewState(
         latitude=48.8566,
@@ -261,6 +293,8 @@ def generate_map(data):
                 <div style="flex: 1;">
                     <b>Address</b>: {adresse}<br/>
                     <b>City</b>: {cp} {ville}<br/>
+                    <b>Brand</b>: {brand}<br/>
+                    <b>Image brand</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/brands/{brand_logo}" width="50" height="50"><br/>
                 </div>
                 <div style="flex: 1;">
                     <b>Price Gazole</b>: {gazole_prix} €<br/>

@@ -6,17 +6,17 @@ The aim of this project is to shed light on a topic of public interest (such as 
 
 I have chosen to focus on the price of fuels in France. You will find a "**data**" directory where all the downloaded CSV files are located, the "**get_data.py**" script that allows you to fetch a new CSV for more up-to-date data, and the script "**app.py**" to launch the dashboard for visualizing the data in various formats.
 
-## About the Data
+### About the Data
 
 The data is provided by data.gouv and is available [here](https://www.data.gouv.fr/fr/datasets/prix-des-carburants-en-france-flux-instantane-v2-amelioree/).
 
 The data is updated every 10 minutes.
 
-## About the Dashboard
+### About the Dashboard
 
 The dashboard is made with Streamlit. You can find the documentation [here](https://docs.streamlit.io/en/stable/).
 
-### Installation
+## Installation
 
 In order to use our program, you have to clone the repo :
 
@@ -31,7 +31,7 @@ Then run this command to install all the libraries used :
 pip install -r requirements.txt
 ```
 
-### Execute
+## Execute
 
 Finally, once the installation is complete, you should run this command to launch the dashboard :
 
@@ -54,7 +54,7 @@ python get_data.py
 
 Now, you can see the dashboard on the IP Address in the terminal or you can click [here](https://petrodash.streamlit.app/)
 
-### Architecture of the project
+## Architecture of the project
 
 ```
 ├── app/
