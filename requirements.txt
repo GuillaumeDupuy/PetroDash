@@ -6,4 +6,3 @@ pyproj
 htbuilder
 datetime
 requests
-os
