@@ -156,7 +156,7 @@ st.altair_chart(bar_chart, use_container_width=True)
 
 # Read brand.txt & get number of stations per brand
 
-with open(cwd + '/data/brand.txt', 'r') as file:
+with open(cwd + '/data/brand.txt', 'r', encoding='ISO-8859-1') as file:
     brand_list = file.read().splitlines()
 
 st.write('Number of stations per brand')
