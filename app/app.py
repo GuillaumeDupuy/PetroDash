@@ -5,9 +5,10 @@ import requests
 from datetime import datetime
 import os
 import altair as alt
-import pydeck as pdk
-import pyproj
-from PIL import Image
+
+# IMPORT FUNCTIONS
+from utils.footer import footer, link, layout
+from utils.map import generate_map
 
 # GET PWD
 cwd = os.getcwd()
@@ -30,9 +31,6 @@ df_price = load_data_df()
 # PAGE
 
 st.title('Price of fuels in France')
-
-# if st.checkbox("See all dataframe", False):
-#     st.dataframe(df_price)
 
 # PRE-PROCESSING
 
@@ -156,6 +154,33 @@ bar_chart = alt.Chart(df_summary_price_region).transform_fold(
 
 st.altair_chart(bar_chart, use_container_width=True)
 
+# Read brand.txt & get number of stations per brand
+
+with open(cwd + '/data/brand.txt', 'r') as file:
+    brand_list = file.read().splitlines()
+
+st.write('Number of stations per brand')
+
+summary_brand = []
+
+for element in brand_list:
+    element_dict = eval(element)
+    name = element_dict['name']
+    nb_stations = element_dict['nb_stations']
+    summary_brand.append({
+        'Brand': name,
+        'Number of stations': nb_stations,
+    })
+
+df_summary_brand = pd.DataFrame(summary_brand)
+
+bar_chart = alt.Chart(df_summary_brand).mark_bar().encode(
+    x=alt.X('Brand:O', title='Brand'),
+    y=alt.Y('Number of stations:Q', title='Number of stations'),
+)
+
+st.altair_chart(bar_chart, use_container_width=True)
+
 # SEARCH CITY
 
 if st.checkbox("See the average price for a city",False):
@@ -191,8 +216,8 @@ if st.checkbox("See the average price for a city",False):
 if st.checkbox("See the evolution of price of fuel per region",False):
     region = st.selectbox("Write or choose the region for which you want to see",name_regions)
     type_carburant = st.selectbox("Write or choose the carburant for you want to see",name_carburants)
-    date_start = st.date_input("Date de début de recherche", datetime.date(2023, 1, 1))
-    current_date = datetime.date.today()
+    date_start = st.date_input("Date de début de recherche", datetime(2023, 1, 1))
+    current_date = datetime.now().date()
     date_finish = st.date_input("Date de fin de recherche", current_date)
 
     df_price_ = df_price[(df_price[f'{type_carburant.lower()}_prix'].notnull()) & (df_price['region'] == f'{region}')][[f'{type_carburant.lower()}_maj', f'{type_carburant.lower()}_prix']]
@@ -200,6 +225,8 @@ if st.checkbox("See the evolution of price of fuel per region",False):
     df_price_= df_price_.sort_values(by=[f'{type_carburant.lower()}_maj'])
     df_price_  = df_price_[(df_price_[f'{type_carburant.lower()}_maj'] >= f'{date_start}') & (df_price_[f'{type_carburant.lower()}_maj'] <= f'{date_finish}')]
     df_price_[f'{type_carburant.lower()}_maj'] = df_price_[f'{type_carburant.lower()}_maj'].dt.strftime('%B')
+
+    # Formatage des mois chiffres en mois lettres
 
     months_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
@@ -219,8 +246,12 @@ if st.checkbox("See the evolution of price of fuel per region",False):
 
 # MAP
 
+# Conversion des coordonnées GPS en décimal
+
 df_price['latitude'] /= 100000
 df_price['longitude'] /= 100000
+
+# Formatage des dates et heures de mise a jour de la staation par type de carburants
 
 columns_to_format = ['gazole_maj', 'sp95_maj', 'sp98_maj', 'e10_maj', 'e85_maj', 'gplc_maj']
 
@@ -247,9 +278,10 @@ for column in columns_to_format:
     df_price[column] = df_price[column].apply(lambda x: "{:%d/%m at %H:%M}".format(datetime.strptime(x, '%d/%m %H:%M')) if x else '')
     df_price[column] = df_price[column].replace('', 'No Update')
 
+# Ajoutez la liste brand_list comme colonne "brand" au DataFrame
+
 df_brand = pd.read_csv(cwd + '/data/brand.csv')
 
-# Ajoutez la liste brand_list comme colonne "brand" au DataFrame
 df_price['brand'] = df_brand['brand']
 df_price['brand'] = df_price['brand'].replace('Marque inconnue', 'No Brand')
 
@@ -258,7 +290,7 @@ df_price['brand_logo'] = df_price['brand']
 
 # Remplacez les valeurs de la colonne "brand_logo" par des valeurs sans espace, sans point, sans accent & en minuscule
 df_price['brand_logo']  = df_price['brand_logo'].str.replace(' ', '')
-df_price['brand_logo']  = df_price['brand_logo'].str.replace('.', '')
+df_price['brand_logo'] = df_price['brand_logo'].str.replace('.', '', regex=True)
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('à', 'a')
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('é', 'e')
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('è', 'e')       
@@ -273,80 +305,67 @@ df_price['brand_logo'] = df_price['brand_logo'].replace('supermarchesspar', 'spa
 df_price['brand_logo'] = df_price['brand_logo'].replace('supercasino', 'supermarchecasino')
 df_price['brand_logo'] = df_price['brand_logo'].replace('intermarchecontact', 'intermarche')
 
-# Fonction pour générer la carte
-
-def generate_map(data):
-    view_state = pdk.ViewState(
-        latitude=48.8566,
-        longitude=2.3522,
-        zoom=4,
-        pitch=0,
-    )
-
-    def custom_tooltip():
-        return {
-            "html": """
-            <div style="display: flex; flex-direction: row;">
-                <div style="flex: 1;">
-                    <b>Address</b>: {adresse}<br/>
-                    <b>City</b>: {cp} {ville}<br/>
-                    <b>Brand</b>: {brand}<br/>
-                    <b>Image brand</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/brands/{brand_logo}.png" width="30" height="30"><br/>
-                </div>
-                <div style="flex: 1;">
-                    <b> Image Gazole</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/fuels/b7.png" width="30" height="30"><br/>
-                    <b>Price Gazole</b>: {gazole_prix} €<br/>
-                    <b>Update on</b>: {gazole_maj}<br/>
-                    <b> Image SP98</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/fuels/e5.png" width="30" height="30"><br/>
-                    <b>Price SP98</b>: {sp98_prix} €<br/>
-                    <b>Update on</b>: {sp98_maj}<br/>
-                    <b> Image E85</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/fuels/e85.png" width="30" height="30"><br/>
-                    <b>Price E85</b>: {e85_prix} €<br/>
-                    <b>Update on</b>: {e85_maj}<br/>
-                </div>
-                <div style="flex: 1;">
-                    <b> Image SP95</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/fuels/e10.png" width="30" height="30"><br/>
-                    <b>Price SP95</b>: {sp95_prix} €<br/>
-                    <b>Update on</b>: {sp95_maj}<br/> 
-                    <b> Image E10</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/fuels/e10.png" width="30" height="30"><br/>
-                    <b>Price E10</b>: {e10_prix} €<br/>
-                    <b>Update on</b>: {e10_maj}<br/>
-                    <b> Image GPLc</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/fuels/lpg.png" width="30" height="30"><br/>
-                    <b>Price GPLc</b>: {gplc_prix} €<br/>
-                    <b>Update on</b>: {gplc_maj}<br/>
-                </div>
-            </div>
-            """,
-            "style": {
-                "backgroundColor": "white",
-                "color": "black"
-            }
-        }
- 
-
-    layer = pdk.Layer(
-        "ScatterplotLayer",
-        data=data,
-        get_position=["longitude", "latitude"],
-        get_radius=2500,
-        get_color=[255, 0, 0],
-        pickable=True,
-        auto_highlight=True,
-    )
-
-    map_ = pdk.Deck(
-        map_style="mapbox://styles/mapbox/light-v9",
-        layers=[layer],
-        initial_view_state=view_state,
-        tooltip=custom_tooltip()
-    )
-
-    return map_
+# MAP
 
 st.title('Gas Station Map')
 
+if st.checkbox("Filter",False):
+
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        gazole = st.checkbox("Gazole",False)
+        sp98 = st.checkbox("SP98",False)
+        sp95 = st.checkbox("SP95",False)
+    with col2:
+        e10 = st.checkbox("E10",False)
+        e85 = st.checkbox("E85",False)
+        gplc = st.checkbox("GPLc",False)
+    
+    if st.checkbox("If you want to filter by City (if not, it will be by Region)",False):
+
+        ville = st.selectbox("Write or choose the city for which you want to see",name_villes)
+        df_price_ = df_price[(df_price['ville'] == ville)]
+
+        if gazole:
+            df_price_ = df_price_.loc[(df_price_['gazole_prix'] != 'Not available in station') & (df_price['ville'] == ville)]
+        if sp98:
+            df_price_ = df_price_.loc[(df_price_['sp98_prix'] != 'Not available in station') & (df_price['ville'] == ville)]
+        if sp95:
+            df_price_ = df_price_.loc[(df_price_['sp95_prix'] != 'Not available in station') & (df_price['ville'] == ville)]
+        if e10:
+            df_price_ = df_price_.loc[(df_price_['e10_prix'] != 'Not available in station') & (df_price['ville'] == ville)]
+        if e85:
+            df_price_ = df_price_.loc[(df_price_['e85_prix'] != 'Not available in station') & (df_price['ville'] == ville)]
+        if gplc:
+            df_price_ = df_price_.loc[(df_price_['gplc_prix'] != 'Not available in station') & (df_price['ville'] == ville)]
+
+    else:
+        region = st.selectbox("Write or choose the region for which you want to see",name_regions)
+        df_price_ = df_price[(df_price['region'] == region)]
+
+        if gazole:
+            df_price_ = df_price_.loc[(df_price_['gazole_prix'] != 'Not available in station') & (df_price['region'] == region)]
+        if sp98:
+            df_price_ = df_price_.loc[(df_price_['sp98_prix'] != 'Not available in station') & (df_price['region'] == region)]
+        if sp95:
+            df_price_ = df_price_.loc[(df_price_['sp95_prix'] != 'Not available in station') & (df_price['region'] == region)]
+        if e10:
+            df_price_ = df_price_.loc[(df_price_['e10_prix'] != 'Not available in station') & (df_price['region'] == region)]
+        if e85:
+            df_price_ = df_price_.loc[(df_price_['e85_prix'] != 'Not available in station') & (df_price['region'] == region)]
+        if gplc:
+            df_price_ = df_price_.loc[(df_price_['gplc_prix'] != 'Not available in station') & (df_price['region'] == region)]
+    
+else:
+    df_price_ = df_price
+
 # Générez la carte
-map_ = generate_map(df_price)
+map_ = generate_map(df_price_)
 
 # Affichez la carte dans l'application Streamlit
 st.pydeck_chart(map_)
+
+# FOOTER
+
+footer()

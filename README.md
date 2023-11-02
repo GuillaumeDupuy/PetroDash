@@ -58,6 +58,9 @@ Now, you can see the dashboard on the IP Address in the terminal or you can clic
 
 ```
 ├── app/
+│   ├── utils/
+│   │   ├── footer.py
+│   │   └── map.py
 │   │
 │   └── app.py
 │
@@ -65,9 +68,16 @@ Now, you can see the dashboard on the IP Address in the terminal or you can clic
 │
 ├── requirements.txt
 │
+├── image/
+│   ├── brand/
+│   │   └── all_images_of_brand
+│   └── fuels/
+│       └── all_images_of_fuel
+│
 ├── data/
 │    ├── data.csv
-│    └── new_data.csv
+│    ├── brand.txt
+│    └── brand.csv
 │
 ```
 
@@ -75,7 +85,13 @@ If you wish to modify or extend the code, here's a brief overview:
 
 - app/app.py: This file contains the code for the dashboard. You can customize the visualization and interaction components here.
 
+- app/utils/: This directory contains the code for the map and footer components. You can customize the map and footer here.
+
 - get_data.py: Use this script to fetch new data. You can modify it to collect data from different sources or update the existing data retrieval process.
+
+- image/: This directory contains all the images used in the dashboard.
+
+- data/: This directory contains the data used in the dashboard.
 
 - requirements.txt: This file lists all the Python libraries and dependencies required for the project. If you add new libraries, make sure to update this file accordingly.
 
