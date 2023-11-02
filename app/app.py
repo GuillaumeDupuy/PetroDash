@@ -251,32 +251,33 @@ df_brand = pd.read_csv(cwd + '/data/brand.csv')
 
 # Ajoutez la liste brand_list comme colonne "brand" au DataFrame
 df_price['brand'] = df_brand['brand']
+df_price['brand'] = df_price['brand'].replace('Marque inconnue', 'No Brand')
 
-with open(cwd + '/data/brand.txt', 'r') as f:
-    brand_list = f.read().splitlines()
+# dupliquer la colonne "brand" dans une nouvelle colonne "brand_logo"
+df_price['brand_logo'] = df_price['brand']
 
-brand_list = df_price['brand']
-brand_list = brand_list[~pd.isna(brand_list)]
-brand_list = sorted(brand_list)
+# Remplacez les valeurs de la colonne "brand_logo" par des valeurs sans espace, sans point, sans accent & en minuscule
+df_price['brand_logo']  = df_price['brand_logo'].str.replace(' ', '')
+df_price['brand_logo']  = df_price['brand_logo'].str.replace('.', '')
+df_price['brand_logo']  = df_price['brand_logo'].str.replace('à', 'a')
+df_price['brand_logo']  = df_price['brand_logo'].str.replace('é', 'e')
+df_price['brand_logo']  = df_price['brand_logo'].str.replace('è', 'e')       
+df_price['brand_logo'] = df_price['brand_logo'].str.lower()
 
-brand_list2 = []
+# replace in brand_logo column the value 'Nobrand' by 'autre'
+df_price['brand_logo'] = df_price['brand_logo'].replace('nobrand', 'autre')
+df_price['brand_logo'] = df_price['brand_logo'].replace('totalenergies', 'total')
+df_price['brand_logo'] = df_price['brand_logo'].replace('totalenergiesaccess', 'totalaccess')
+df_price['brand_logo'] = df_price['brand_logo'].replace('marqueinconnue', 'autre')
+df_price['brand_logo'] = df_price['brand_logo'].replace('supermarchesspar', 'spar')
+df_price['brand_logo'] = df_price['brand_logo'].replace('supercasino', 'supermarchecasino')
+df_price['brand_logo'] = df_price['brand_logo'].replace('intermarchecontact', 'intermarche')
 
-for brand in brand_list:
-    brand = brand.lower()
-    brand = brand.lower().replace(' ', '')
-    brand = brand.replace('.', '')
-    brand = brand.replace('à', 'a')
-    try:
-        im = Image.open(cwd + '/image/brands/' + brand + '.png')
-        brand_list2.append(brand + '.png')
-    except:
-        brand_list2.append('autre.png')
 
-df_brand = pd.DataFrame(brand_list2, columns=['logo'])
-df_brand.to_csv(cwd + '/data/brand_logo.csv', index=False)
 
-df_brand_logo = pd.read_csv(cwd + '/data/brand_logo.csv')
-df_price['brand_logo'] = df_brand_logo['logo']
+st.write(df_price[['brand', 'brand_logo']])
+
+# Fonction pour générer la carte
 
 def generate_map(data):
     view_state = pdk.ViewState(
@@ -294,7 +295,7 @@ def generate_map(data):
                     <b>Address</b>: {adresse}<br/>
                     <b>City</b>: {cp} {ville}<br/>
                     <b>Brand</b>: {brand}<br/>
-                    <b>Image brand</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/brands/{brand_logo}" width="50" height="50"><br/>
+                    <b>Image brand</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/brands/{brand_logo}.png" width="50" height="50"><br/>
                 </div>
                 <div style="flex: 1;">
                     <b>Price Gazole</b>: {gazole_prix} €<br/>
