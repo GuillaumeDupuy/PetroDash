@@ -59,7 +59,7 @@ def layout(*args):
         text_align="center",
         font_family="Arial, sans-serif",
         opacity=1,
-        position="relative",
+        position="fixed",
         left=0,
         bottom=0,
     )
