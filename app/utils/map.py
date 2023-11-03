@@ -36,7 +36,7 @@ def generate_map(data):
                     <b>Address</b>: {adresse}<br/>
                     <b>City</b>: {cp} {ville}<br/>
                     <b>Brand</b>: {brand}<br/>
-                    <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/fuels/b7.png" width="30" height="30">
+                    <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/brands/carrefour.png" width="30" height="30">
                 </div>
                 <div style="flex: 1;">
                     <b> Image Gazole</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/fuels/b7.png" width="30" height="30"><br/>
