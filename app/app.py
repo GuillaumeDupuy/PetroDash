@@ -51,7 +51,7 @@ df_price = load_data_df()
 # Sidebar
 # ---------------------------------------------------------------------------------------------------------------
 
-st.sidebar.image(cwd + '/images/station-service.jpg', width=200, use_column_width=True)
+st.sidebar.image(cwd + '/image/station-service.jpg', width=200, use_column_width=True)
 st.sidebar.title('Navigation')
 
 # Pages
