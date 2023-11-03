@@ -460,10 +460,59 @@ if page == 'Gas Station Map':
 
     # Create a checkbox to filter the map
 
+    if st.checkbox("Filter",False):
 
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            gazole = st.checkbox("Gazole",False)
+            sp98 = st.checkbox("SP98",False)
+            sp95 = st.checkbox("SP95",False)
+        with col2:
+            e10 = st.checkbox("E10",False)
+            e85 = st.checkbox("E85",False)
+            gplc = st.checkbox("GPLc",False)
+        
+        if st.checkbox("If you want to filter by City (if not, it will be by Region)",False):
+
+            ville = st.selectbox("Write or choose the city for which you want to see",name_villes, key="ville_map_selectbox")
+            df_price_ = df_price[(df_price['ville'] == ville)]
+
+            if gazole:
+                df_price_ = df_price_.loc[(df_price_['gazole_prix'] != 'Not available in station') & (df_price_['ville'] == ville)]
+            if sp98:
+                df_price_ = df_price_.loc[(df_price_['sp98_prix'] != 'Not available in station') & (df_price_['ville'] == ville)]
+            if sp95:
+                df_price_ = df_price_.loc[(df_price_['sp95_prix'] != 'Not available in station') & (df_price_['ville'] == ville)]
+            if e10:
+                df_price_ = df_price_.loc[(df_price_['e10_prix'] != 'Not available in station') & (df_price_['ville'] == ville)]
+            if e85:
+                df_price_ = df_price_.loc[(df_price_['e85_prix'] != 'Not available in station') & (df_price_['ville'] == ville)]
+            if gplc:
+                df_price_ = df_price_.loc[(df_price_['gplc_prix'] != 'Not available in station') & (df_price_['ville'] == ville)]
+
+        else:
+            region = st.selectbox("Write or choose the region for which you want to see",name_regions, key="region_map_selectbox")
+            df_price_ = df_price[(df_price['region'] == region)]
+
+            if gazole:
+                df_price_ = df_price_.loc[(df_price_['gazole_prix'] != 'Not available in station') & (df_price_['region'] == region)]
+            if sp98:
+                df_price_ = df_price_.loc[(df_price_['sp98_prix'] != 'Not available in station') & (df_price_['region'] == region)]
+            if sp95:
+                df_price_ = df_price_.loc[(df_price_['sp95_prix'] != 'Not available in station') & (df_price_['region'] == region)]
+            if e10:
+                df_price_ = df_price_.loc[(df_price_['e10_prix'] != 'Not available in station') & (df_price_['region'] == region)]
+            if e85:
+                df_price_ = df_price_.loc[(df_price_['e85_prix'] != 'Not available in station') & (df_price_['region'] == region)]
+            if gplc:
+                df_price_ = df_price_.loc[(df_price_['gplc_prix'] != 'Not available in station') & (df_price_['region'] == region)]
+        
+    else:
+        df_price_ = df_price
 
     # Generate the map
-    map_ = generate_map(df_price)
+    map_ = generate_map(df_price_)
 
     # Display the map
     st.pydeck_chart(map_)
