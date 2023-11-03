@@ -53,6 +53,13 @@ df_price = load_data_df()
 
 st.title('Price of fuels in France')
 
+st.write('<br><br>', unsafe_allow_html=True)
+st.write('This application allows you to visualize the price of fuels in France.')
+st.write('First, i have analyzed the data in the entire dataset. To see, the number of stations per fuel, the average price per fuel, the number of stations per fuel per region and the average price per fuel per region.')
+st.write('Then, you can filter the data by city or by region. You can also filter by fuel. Finally, you can see the evolution of the price of a fuel over time in a city or a region.')
+st.write('I have also added a map that allows you to see the location of the stations in France. You can filter the data by city or by region. You can also filter by fuel.')
+st.write('<strong>Warning:</strong> The data is updated every 15 minutes. The data is not updated in real time.', unsafe_allow_html=True)
+
 # ---------------------------------------------------------------------------------------------------------------
 # Pre-processing
 # ---------------------------------------------------------------------------------------------------------------
@@ -91,6 +98,8 @@ df_summary = pd.DataFrame(summary)
 # Display the number of stations per fuel
 # ---------------------------------------------------------------------------------------------------------------
 
+st.write('<br><br>', unsafe_allow_html=True)
+
 st.title('Number of stations per fuel')
 
 bar_chart = alt.Chart(df_summary).mark_bar().encode(
@@ -99,6 +108,9 @@ bar_chart = alt.Chart(df_summary).mark_bar().encode(
 )
 
 st.altair_chart(bar_chart, use_container_width=True)
+
+st.write("The bar chart above displays the number of fuel stations for each type of fuel in France. It offers a visual representation of the availability of different fuel options across the country. This information can be valuable for understanding the distribution of fuel options and their accessibility to consumers in different regions.")
+
 
 # ---------------------------------------------------------------------------------------------------------------
 # Display the average price per fuel
@@ -114,6 +126,8 @@ for carburant in name_carburants:
 
 df_summary_price = pd.DataFrame(summary_price)
 
+st.write('<br><br>', unsafe_allow_html=True)
+
 st.title('Average price per fuel')
 
 bar_chart = alt.Chart(df_summary_price).mark_bar().encode(
@@ -122,6 +136,8 @@ bar_chart = alt.Chart(df_summary_price).mark_bar().encode(
 )
 
 st.altair_chart(bar_chart, use_container_width=True)
+
+st.write("The bar chart above illustrates the average prices for different types of fuels in France. It provides valuable insights into the cost of different fuels, helping consumers make informed decisions about their fuel choices. This data can also be useful for tracking price trends and comparing fuel prices between regions and cities.")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Display the number of stations per fuel per region
@@ -142,6 +158,8 @@ for region in name_regions:
 
 df_summary_region = pd.DataFrame(summary_region)
 
+st.write('<br><br>', unsafe_allow_html=True)
+
 st.title('Number of stations per fuel per region')
 
 bar_chart = alt.Chart(df_summary_region).transform_fold(
@@ -153,6 +171,8 @@ bar_chart = alt.Chart(df_summary_region).transform_fold(
 )
 
 st.altair_chart(bar_chart, use_container_width=True)
+
+st.write("The bar chart above presents the number of fuel stations for each type of fuel in various regions of France. It allows you to compare the availability of different fuel options across different regions. This information can be helpful for residents or travelers looking for specific fuel types in particular areas. The chart provides a clear visual representation of the regional distribution of fuel stations for each fuel type.")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Display the average price per fuel per region
@@ -173,6 +193,8 @@ for region in name_regions:
 
 df_summary_price_region = pd.DataFrame(summary_price_region)
 
+st.write('<br><br>', unsafe_allow_html=True)
+
 st.title('Average price per fuel per region')
 
 bar_chart = alt.Chart(df_summary_price_region).transform_fold(
@@ -185,6 +207,8 @@ bar_chart = alt.Chart(df_summary_price_region).transform_fold(
 
 st.altair_chart(bar_chart, use_container_width=True)
 
+st.write("The bar chart above provides insights into the average prices of different fuels in different regions of France. It allows you to compare the cost of various fuels within specific regions. This information can be valuable for budget-conscious consumers or businesses looking to optimize their fuel expenses. By visualizing the regional price differences, users can make more informed decisions about where to refuel based on their fuel preferences and budget.")
+
 # ---------------------------------------------------------------------------------------------------------------
 # Display the number of stations per brand
 # ---------------------------------------------------------------------------------------------------------------
@@ -193,7 +217,9 @@ st.altair_chart(bar_chart, use_container_width=True)
 with open(cwd + '/data/brand.txt', 'r', encoding='ISO-8859-1') as file:
     brand_list = file.read().splitlines()
 
-st.write('Number of stations per brand')
+st.write('<br><br>', unsafe_allow_html=True)
+
+st.title('Number of stations per brand')
 
 summary_brand = []
 
@@ -215,71 +241,119 @@ bar_chart = alt.Chart(df_summary_brand).mark_bar().encode(
 
 st.altair_chart(bar_chart, use_container_width=True)
 
+st.write("The bar chart above presents the number of fuel stations for different brands in France. It provides insights into the distribution of fuel stations among various brands, helping consumers identify popular and widely available brands. This information can be valuable for consumers looking for fuel stations associated with specific brands or for businesses considering brand partnerships for their fleet's fueling needs.")
+
 # ---------------------------------------------------------------------------------------------------------------
 # Search city
-# Display the average price per fuel of the city by a call API
+# Display graphics on a city by a call API
 # ---------------------------------------------------------------------------------------------------------------
 
-if st.checkbox("See the average price for a city",False):
-    ville = st.selectbox("Write or choose the city for which you want to see the average price",name_villes)
+st.write('<br><br>', unsafe_allow_html=True)
 
-    url = f"https://api.prix-carburants.2aaz.fr/pdv_liste/?opendata=v2&q={ville}"
+st.title('Search city')
 
-    r = requests.get(url, allow_redirects=True)
+st.write("Now, you have the ability to narrow down your analysis to a specific city using the parameters of your choice. You can explore the average fuel prices in a selected city and track the evolution of fuel prices over time within that city. To begin, then choose a city from the dropdown menu. This will display the average fuel prices for different fuel types in your selected city. Additionally, you can further refine your analysis by specifying a fuel type and a date range to examine how the fuel prices have changed over time. The line chart will show you the price trend for your chosen fuel type in the selected city.")
 
-    summary_price_ville = []
+st.write('<br>', unsafe_allow_html=True)
 
-    for carburant in name_carburants:
-        summary_price_ville.append({
-            'Carburant': carburant,
-            'Average price': df_price[(df_price['ville'] == ville) & (df_price[carburant.lower() + '_prix'].notnull())][carburant.lower() + '_prix'].mean(),
-        })
+ville = st.selectbox("Write or choose the city for which you want to see the average price",name_villes)
 
-    df_summary_price_ville = pd.DataFrame(summary_price_ville)
+url = f"https://api.prix-carburants.2aaz.fr/pdv_liste/?opendata=v2&q={ville}"
 
-    st.title(f'Average price per fuel in the city of {ville}')
+r = requests.get(url, allow_redirects=True)
 
-    bar_chart = alt.Chart(df_summary_price_ville).mark_bar().encode(
-        x=alt.X('Carburant:O', title='Carburant'),
-        y=alt.Y('Average price:Q', title='Average price'),
-    )
+summary_price_ville = []
 
-    st.altair_chart(bar_chart, use_container_width=True)
+for carburant in name_carburants:
+    summary_price_ville.append({
+        'Carburant': carburant,
+        'Average price': df_price[(df_price['ville'] == ville) & (df_price[carburant.lower() + '_prix'].notnull())][carburant.lower() + '_prix'].mean(),
+    })
+
+df_summary_price_ville = pd.DataFrame(summary_price_ville)
+
+st.title(f'Average price per fuel in the city of {ville}')
+
+bar_chart = alt.Chart(df_summary_price_ville).mark_bar().encode(
+    x=alt.X('Carburant:O', title='Carburant'),
+    y=alt.Y('Average price:Q', title='Average price'),
+)
+
+st.altair_chart(bar_chart, use_container_width=True)
+
+# ---------------------------------------------------------------------------------------------------------------
+# Display the evolution of the price of fuel per city
+# ---------------------------------------------------------------------------------------------------------------
+
+type_carburant = st.selectbox("Write or choose the carburant for you want to see",name_carburants)
+date_start = st.date_input("Date de début de recherche", datetime(2023, 1, 1))
+current_date = datetime.now().date()
+date_finish = st.date_input("Date de fin de recherche", current_date)
+
+df_price_ = df_price[(df_price[f'{type_carburant.lower()}_prix'].notnull()) & (df_price['ville'] == f'{ville}')][[f'{type_carburant.lower()}_maj', f'{type_carburant.lower()}_prix']]
+df_price_[f'{type_carburant.lower()}_maj'] = pd.to_datetime(df_price_[f'{type_carburant.lower()}_maj'])
+df_price_= df_price_.sort_values(by=[f'{type_carburant.lower()}_maj'])
+df_price_  = df_price_[(df_price_[f'{type_carburant.lower()}_maj'] >= f'{date_start}') & (df_price_[f'{type_carburant.lower()}_maj'] <= f'{date_finish}')]
+df_price_[f'{type_carburant.lower()}_maj'] = df_price_[f'{type_carburant.lower()}_maj'].dt.strftime('%B')
+
+# Formatting of the months in letters
+months_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+y_min = 1.0 
+y_max = 3.0
+
+y_scale = alt.Scale(domain=[y_min, y_max])
+
+line_chart = alt.Chart(df_price_).mark_line().encode(
+    x=alt.X(f'{type_carburant.lower()}_maj:N', title='Month', sort=months_order),
+    y=alt.Y(f'{type_carburant.lower()}_prix:Q', title='Price', scale=y_scale),
+)
+
+st.title(f'Evolution of the price of {type_carburant} according to time on {ville}')
+
+st.altair_chart(line_chart, use_container_width=True)
 
 # ---------------------------------------------------------------------------------------------------------------
 # Search region
-# Display the average price per fuel of the region by filtering the dataframe
+# Display graphics on a region by filtering the dataframe
 # ---------------------------------------------------------------------------------------------------------------
 
-if st.checkbox("See the evolution of price of fuel per region",False):
-    region = st.selectbox("Write or choose the region for which you want to see",name_regions)
-    type_carburant = st.selectbox("Write or choose the carburant for you want to see",name_carburants)
-    date_start = st.date_input("Date de début de recherche", datetime(2023, 1, 1))
-    current_date = datetime.now().date()
-    date_finish = st.date_input("Date de fin de recherche", current_date)
+st.write('<br><br>', unsafe_allow_html=True)
 
-    df_price_ = df_price[(df_price[f'{type_carburant.lower()}_prix'].notnull()) & (df_price['region'] == f'{region}')][[f'{type_carburant.lower()}_maj', f'{type_carburant.lower()}_prix']]
-    df_price_[f'{type_carburant.lower()}_maj'] = pd.to_datetime(df_price_[f'{type_carburant.lower()}_maj'])
-    df_price_= df_price_.sort_values(by=[f'{type_carburant.lower()}_maj'])
-    df_price_  = df_price_[(df_price_[f'{type_carburant.lower()}_maj'] >= f'{date_start}') & (df_price_[f'{type_carburant.lower()}_maj'] <= f'{date_finish}')]
-    df_price_[f'{type_carburant.lower()}_maj'] = df_price_[f'{type_carburant.lower()}_maj'].dt.strftime('%B')
+st.title('Search region')
 
-    # Formatting of the months in letters
-    months_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+st.write("In this section, you can focus your analysis on a specific region by filtering the data accordingly. First, select a region from the dropdown menu, and then choose a fuel type that you want to investigate. You can further refine your analysis by specifying a date range to observe how fuel prices have evolved over time in the selected region. The line chart will visualize the price trend for the chosen fuel type in the chosen region, allowing you to gain insights into the price fluctuations in that area.")
 
-    y_min = 1.0 
-    y_max = 3.0
+st.write('<br>', unsafe_allow_html=True)
 
-    y_scale = alt.Scale(domain=[y_min, y_max])
+region = st.selectbox("Write or choose the region for which you want to see",name_regions, key="region_selectbox")
+type_carburant = st.selectbox("Write or choose the carburant for you want to see",name_carburants, key="carburant_selectbox")
+date_start = st.date_input("Date de début de recherche", datetime(2023, 1, 1), key="date_start_selectbox")
+current_date = datetime.now().date()
+date_finish = st.date_input("Date de fin de recherche", current_date, key="date_finish_selectbox")
 
-    line_chart = alt.Chart(df_price_).mark_line().encode(
-        x=alt.X(f'{type_carburant.lower()}_maj:N', title='Month', sort=months_order),
-        y=alt.Y(f'{type_carburant.lower()}_prix:Q', title='Price', scale=y_scale),
-    )
+df_price_ = df_price[(df_price[f'{type_carburant.lower()}_prix'].notnull()) & (df_price['region'] == f'{region}')][[f'{type_carburant.lower()}_maj', f'{type_carburant.lower()}_prix']]
+df_price_[f'{type_carburant.lower()}_maj'] = pd.to_datetime(df_price_[f'{type_carburant.lower()}_maj'])
+df_price_= df_price_.sort_values(by=[f'{type_carburant.lower()}_maj'])
+df_price_  = df_price_[(df_price_[f'{type_carburant.lower()}_maj'] >= f'{date_start}') & (df_price_[f'{type_carburant.lower()}_maj'] <= f'{date_finish}')]
+df_price_[f'{type_carburant.lower()}_maj'] = df_price_[f'{type_carburant.lower()}_maj'].dt.strftime('%B')
 
-    st.title(f'Évolution du prix du {type_carburant} en fonction du temps et de la région {region}')
+# Formatting of the months in letters
+months_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-    st.altair_chart(line_chart, use_container_width=True)
+y_min = 1.0 
+y_max = 3.0
+
+y_scale = alt.Scale(domain=[y_min, y_max])
+
+line_chart = alt.Chart(df_price_).mark_line().encode(
+    x=alt.X(f'{type_carburant.lower()}_maj:N', title='Month', sort=months_order),
+    y=alt.Y(f'{type_carburant.lower()}_prix:Q', title='Price', scale=y_scale),
+)
+
+st.title(f'Evolution of the price of {type_carburant} according to time on {region}')
+
+st.altair_chart(line_chart, use_container_width=True)
 
 # ---------------------------------------------------------------------------------------------------------------
 # Pre-processing for the map
@@ -345,7 +419,13 @@ df_price['brand_logo'] = df_price['brand_logo'].replace('intermarchecontact', 'i
 # Map
 # ---------------------------------------------------------------------------------------------------------------
 
+st.write('<br><br>', unsafe_allow_html=True)
+
 st.title('Gas Station Map')
+
+st.write("In the 'Gas Station Map' section, you can visualize the location of fuel stations across France on a map. You have the option to filter the stations based on your preferences. You can filter by fuel type(s), and choose whether you want to filter by city or region. This interactive map allows you to explore the geographic distribution of fuel stations and their availability based on the selected filters. You can focus on specific areas and discover the locations that match your fuel preferences.")
+
+st.write('<br>', unsafe_allow_html=True)
 
 # Create a checkbox to filter the map
 
