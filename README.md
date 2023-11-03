@@ -12,6 +12,8 @@ The data is provided by data.gouv and is available [here](https://www.data.gouv.
 
 The data is updated every 10 minutes.
 
+The data is about the price of fuels in France in every gas station. 
+
 ### About the Dashboard
 
 The dashboard is made with Streamlit. You can find the documentation [here](https://docs.streamlit.io/en/stable/).

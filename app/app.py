@@ -1,4 +1,6 @@
-# IMPORT LIBRAIRIES
+# ---------------------------------------------------------------------------------------------------------------
+# Import libraries
+# ---------------------------------------------------------------------------------------------------------------
 import streamlit as st
 import pandas as pd
 import requests
@@ -6,51 +8,70 @@ from datetime import datetime
 import os
 import altair as alt
 
-# IMPORT FUNCTIONS
+# ---------------------------------------------------------------------------------------------------------------
+# Import modules
+# ---------------------------------------------------------------------------------------------------------------
 from utils.footer import footer, link, layout
 from utils.map import generate_map
 
-# GET PWD
+# ---------------------------------------------------------------------------------------------------------------
+# Get the current working directory
+# ---------------------------------------------------------------------------------------------------------------
 cwd = os.getcwd()
 
-# DOWNLOAD DATA IN CACHE
+# ---------------------------------------------------------------------------------------------------------------
+# Download data in cache
+# ---------------------------------------------------------------------------------------------------------------
 @st.cache_data
 def load_data_df():
-    """Load dataset in cache"""
+    """
+    Load dataset in cache
+    Args:
+        None
+    Returns:
+        df_price (dataframe): Dataframe with the data
+    """
     cwd = os.getcwd()
     df_price = pd.read_csv(cwd + '/data/prix-des-carburants-en-france-flux-instantane-v2.csv', sep=';')
     return df_price
 
+# ---------------------------------------------------------------------------------------------------------------
+# Page configuration
+# ---------------------------------------------------------------------------------------------------------------
 st.set_page_config(
     page_title="PetroDash", page_icon="⛽", initial_sidebar_state="collapsed"
 )
 
-# LOAD DATAFRAME
+# ---------------------------------------------------------------------------------------------------------------
+# Load data
+# ---------------------------------------------------------------------------------------------------------------
 df_price = load_data_df()
 
-# PAGE
+# ---------------------------------------------------------------------------------------------------------------
+# Page layout
+# ---------------------------------------------------------------------------------------------------------------
 
 st.title('Price of fuels in France')
 
-# PRE-PROCESSING
+# ---------------------------------------------------------------------------------------------------------------
+# Pre-processing
+# ---------------------------------------------------------------------------------------------------------------
 
-# Un tableau contenant tous les noms de région
+# Array containing all the names of the regions
 name_regions = df_price['region'].unique()
 name_regions = name_regions[~pd.isna(name_regions)]
 name_regions = sorted(name_regions)
 
-# Un tableau contenant tous les noms de ville
-
+# Array containing all the names of the cities
 name_villes = df_price['ville'].unique()
 name_villes = name_villes[~pd.isna(name_villes)]
 name_villes = sorted(name_villes)
 
-# Un tableau contenant tous les noms de carburants
-
+# Array containing all the names of the fuels
 name_carburants = df_price['carburants_disponibles'].str.split(',').explode().unique()
 name_carburants = name_carburants[~pd.isna(name_carburants)]
 
-# Dictionnaire contenant le nombre de stations par carburant
+# Dictionary containing the number of stations per fuel
 summary = [
     {'Carburant': 'E10', 'Number of stations': len(df_price[df_price['e10_prix'].notnull()])},
     {'Carburant': 'Gazole', 'Number of stations': len(df_price[df_price['gazole_prix'].notnull()])},
@@ -62,9 +83,13 @@ summary = [
 
 df_summary = pd.DataFrame(summary)
 
-# GRAPHIC
+# ---------------------------------------------------------------------------------------------------------------
+# GRAPHICS
 
-# Affichage du nombre de stations par carburant
+
+# ---------------------------------------------------------------------------------------------------------------
+# Display the number of stations per fuel
+# ---------------------------------------------------------------------------------------------------------------
 
 st.title('Number of stations per fuel')
 
@@ -75,7 +100,9 @@ bar_chart = alt.Chart(df_summary).mark_bar().encode(
 
 st.altair_chart(bar_chart, use_container_width=True)
 
-# Affichage du prix moyen par carburant
+# ---------------------------------------------------------------------------------------------------------------
+# Display the average price per fuel
+# ---------------------------------------------------------------------------------------------------------------
 
 summary_price = []
 
@@ -96,7 +123,9 @@ bar_chart = alt.Chart(df_summary_price).mark_bar().encode(
 
 st.altair_chart(bar_chart, use_container_width=True)
 
-# Affichage du nombre de stations par carburant par région
+# ---------------------------------------------------------------------------------------------------------------
+# Display the number of stations per fuel per region
+# ---------------------------------------------------------------------------------------------------------------
 
 summary_region = []
 
@@ -125,7 +154,9 @@ bar_chart = alt.Chart(df_summary_region).transform_fold(
 
 st.altair_chart(bar_chart, use_container_width=True)
 
-# Affichage du prix moyen par carburant par région
+# ---------------------------------------------------------------------------------------------------------------
+# Display the average price per fuel per region
+# ---------------------------------------------------------------------------------------------------------------
 
 summary_price_region = []
 
@@ -154,8 +185,11 @@ bar_chart = alt.Chart(df_summary_price_region).transform_fold(
 
 st.altair_chart(bar_chart, use_container_width=True)
 
-# Read brand.txt & get number of stations per brand
+# ---------------------------------------------------------------------------------------------------------------
+# Display the number of stations per brand
+# ---------------------------------------------------------------------------------------------------------------
 
+# Read brand.txt & get number of stations per brand
 with open(cwd + '/data/brand.txt', 'r', encoding='ISO-8859-1') as file:
     brand_list = file.read().splitlines()
 
@@ -181,7 +215,10 @@ bar_chart = alt.Chart(df_summary_brand).mark_bar().encode(
 
 st.altair_chart(bar_chart, use_container_width=True)
 
-# SEARCH CITY
+# ---------------------------------------------------------------------------------------------------------------
+# Search city
+# Display the average price per fuel of the city by a call API
+# ---------------------------------------------------------------------------------------------------------------
 
 if st.checkbox("See the average price for a city",False):
     ville = st.selectbox("Write or choose the city for which you want to see the average price",name_villes)
@@ -189,8 +226,6 @@ if st.checkbox("See the average price for a city",False):
     url = f"https://api.prix-carburants.2aaz.fr/pdv_liste/?opendata=v2&q={ville}"
 
     r = requests.get(url, allow_redirects=True)
-
-    # Affichage du prix moyen par carburant de la ville
 
     summary_price_ville = []
 
@@ -211,7 +246,10 @@ if st.checkbox("See the average price for a city",False):
 
     st.altair_chart(bar_chart, use_container_width=True)
 
-# SEARCH REGION
+# ---------------------------------------------------------------------------------------------------------------
+# Search region
+# Display the average price per fuel of the region by filtering the dataframe
+# ---------------------------------------------------------------------------------------------------------------
 
 if st.checkbox("See the evolution of price of fuel per region",False):
     region = st.selectbox("Write or choose the region for which you want to see",name_regions)
@@ -226,8 +264,7 @@ if st.checkbox("See the evolution of price of fuel per region",False):
     df_price_  = df_price_[(df_price_[f'{type_carburant.lower()}_maj'] >= f'{date_start}') & (df_price_[f'{type_carburant.lower()}_maj'] <= f'{date_finish}')]
     df_price_[f'{type_carburant.lower()}_maj'] = df_price_[f'{type_carburant.lower()}_maj'].dt.strftime('%B')
 
-    # Formatage des mois chiffres en mois lettres
-
+    # Formatting of the months in letters
     months_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
     y_min = 1.0 
@@ -244,15 +281,16 @@ if st.checkbox("See the evolution of price of fuel per region",False):
 
     st.altair_chart(line_chart, use_container_width=True)
 
-# MAP
+# ---------------------------------------------------------------------------------------------------------------
+# Pre-processing for the map
+# ---------------------------------------------------------------------------------------------------------------
 
-# Conversion des coordonnées GPS en décimal
-
+# Convert the coordinates of the stations from degrees to decimal
 df_price['latitude'] /= 100000
 df_price['longitude'] /= 100000
 
-# Formatage des dates et heures de mise a jour de la staation par type de carburants
 
+# Formatting of the update dates and times of the station by type of fuel
 columns_to_format = ['gazole_maj', 'sp95_maj', 'sp98_maj', 'e10_maj', 'e85_maj', 'gplc_maj']
 
 for column in columns_to_format:
@@ -278,17 +316,15 @@ for column in columns_to_format:
     df_price[column] = df_price[column].apply(lambda x: "{:%d/%m at %H:%M}".format(datetime.strptime(x, '%d/%m %H:%M')) if x else '')
     df_price[column] = df_price[column].replace('', 'No Update')
 
-# Ajoutez la liste brand_list comme colonne "brand" au DataFrame
-
+# Add the column "brand" to the dataframe "df_price"
 df_brand = pd.read_csv(cwd + '/data/brand.csv')
-
 df_price['brand'] = df_brand['brand']
 df_price['brand'] = df_price['brand'].replace('Marque inconnue', 'No Brand')
 
-# dupliquer la colonne "brand" dans une nouvelle colonne "brand_logo"
+# Duplicate the values of the "brand" column in the "brand_logo" column
 df_price['brand_logo'] = df_price['brand']
 
-# Remplacez les valeurs de la colonne "brand_logo" par des valeurs sans espace, sans point, sans accent & en minuscule
+# Replace the values of the "brand_logo" column with values without space, without point, without accent & in lowercase
 df_price['brand_logo']  = df_price['brand_logo'].str.replace(' ', '')
 df_price['brand_logo'] = df_price['brand_logo'].str.replace('.', '', regex=True)
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('à', 'a')
@@ -296,7 +332,7 @@ df_price['brand_logo']  = df_price['brand_logo'].str.replace('é', 'e')
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('è', 'e')       
 df_price['brand_logo'] = df_price['brand_logo'].str.lower()
 
-# replace in brand_logo column the value 'Nobrand' by 'autre'
+# Replace in brand_logo column the value 'Nobrand' by 'autre'
 df_price['brand_logo'] = df_price['brand_logo'].replace('nobrand', 'autre')
 df_price['brand_logo'] = df_price['brand_logo'].replace('totalenergies', 'total')
 df_price['brand_logo'] = df_price['brand_logo'].replace('totalenergiesaccess', 'totalaccess')
@@ -305,9 +341,13 @@ df_price['brand_logo'] = df_price['brand_logo'].replace('supermarchesspar', 'spa
 df_price['brand_logo'] = df_price['brand_logo'].replace('supercasino', 'supermarchecasino')
 df_price['brand_logo'] = df_price['brand_logo'].replace('intermarchecontact', 'intermarche')
 
-# MAP
+# ---------------------------------------------------------------------------------------------------------------
+# Map
+# ---------------------------------------------------------------------------------------------------------------
 
 st.title('Gas Station Map')
+
+# Create a checkbox to filter the map
 
 if st.checkbox("Filter",False):
 
@@ -360,12 +400,14 @@ if st.checkbox("Filter",False):
 else:
     df_price_ = df_price
 
-# Générez la carte
+# Generate the map
 map_ = generate_map(df_price_)
 
-# Affichez la carte dans l'application Streamlit
+# Display the map
 st.pydeck_chart(map_)
 
+# ---------------------------------------------------------------------------------------------------------------
 # FOOTER
+# ---------------------------------------------------------------------------------------------------------------
 
 footer()

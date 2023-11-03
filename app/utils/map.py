@@ -1,6 +1,19 @@
+# ------------------------------------------------------------------------------
+# Description: This file contains the function to generate the map
+# ------------------------------------------------------------------------------
+
+# Import libraries
 import pydeck as pdk
 
+# Function to generate the map
 def generate_map(data):
+    """
+    Generate the map with the data
+    Args:
+        data (dataframe): Dataframe with the data to display on the map
+    Returns:
+        map_ (map): Map with the data
+    """
     view_state = pdk.ViewState(
         latitude=48.8566,
         longitude=2.3522,
@@ -9,6 +22,13 @@ def generate_map(data):
     )
 
     def custom_tooltip():
+        """
+        Generate the tooltip
+        Args:
+            None
+            Returns:
+                tooltip (html): Tooltip
+        """
         return {
             "html": """
             <div style="display: flex; flex-direction: row;">

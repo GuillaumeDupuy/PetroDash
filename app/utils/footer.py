@@ -1,5 +1,8 @@
-# Import necessary libraries
+# ------------------------------------------------------------------------------
+# Description: This script defines the footer content of the web page.
+# ------------------------------------------------------------------------------
 
+# Import libraries
 from htbuilder import HtmlElement, div, ul, li, br, hr, a, p, img, styles, classes, fonts
 from htbuilder.units import percent, px
 from htbuilder.funcs import rgba, rgb
@@ -7,14 +10,38 @@ import streamlit as st
 
 # Define a function to create an image element with optional styles
 def image(src_as_string, **style):
+    """
+    Build an image element with `src` and optional `style`
+    Args:
+        src_as_string: image source url
+        style: Dictionary of styles
+    Returns:
+        An HtmlElement object containing the image
+    """
     return img(src=src_as_string, style=styles(**style))
 
 # Define a function to create a hyperlink element with optional styles
 def link(link, text, **style):
+    """
+    Build a hyperlink element with `src` and optional `style`
+    Args:
+        link: Hyperlink
+        text: Text to display
+        style: Dictionary of styles
+    Returns:
+        An HtmlElement object containing the hyperlink
+    """
     return a(_href=link, _target="_blank", style=styles(**style))(text)
 
 # Define the main layout function that assembles the web page
 def layout(*args):
+    """
+    Build a streamlit web page with a header, footer and variable number of content blocks in between
+    Args:
+        *args: Variable length argument list of HtmlElement objects
+    Returns:
+        An HtmlElement object containing the entire web page
+    """
 
     style = """
     <style>
@@ -67,6 +94,14 @@ def layout(*args):
 
 # Define a function to create the footer content
 def footer():
+    """
+    Build the footer content
+    Args:
+        None
+    Returns:
+        An HtmlElement object containing the footer content
+    """
+
     myargs = [
         "Made in ",
         image('https://avatars.githubusercontent.com/u/56391911?v=4',
