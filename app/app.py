@@ -11,8 +11,8 @@ import altair as alt
 # ---------------------------------------------------------------------------------------------------------------
 # Import modules
 # ---------------------------------------------------------------------------------------------------------------
-from utils.footer import footer, link, layout
-from utils.map import generate_map
+from .utils.footer import footer
+from .utils.map import generate_map
 
 # ---------------------------------------------------------------------------------------------------------------
 # Get the current working directory
