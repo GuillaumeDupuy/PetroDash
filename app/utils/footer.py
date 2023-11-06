@@ -110,7 +110,7 @@ def footer():
         link("https://github.com/GuillaumeDupuy/", "@GuillaumeDupuy", color="red"),
         br(),
         "Learn more about this dashboard and the methodology behind its development. The data sources used to create this application are available on ",
-        link("data.gouv.fr","data.gouv.fr", color="red"), 
+        link("https://www.data.gouv.fr/","data.gouv.fr", color="red"), 
         " and can be explored ",
         link("https://www.data.gouv.fr/fr/datasets/prix-des-carburants-en-france-flux-instantane-v2-amelioree/#/resources)", "here.", color="red"),
         br(),
