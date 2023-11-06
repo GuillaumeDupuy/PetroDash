@@ -516,7 +516,7 @@ if page == 'Gas Station Map':
     # Display the map
     st.pydeck_chart(map_)
 
-    path = './image'
+    path = './image/brands/'
  
     files = os.listdir(path)
     for name in files:
