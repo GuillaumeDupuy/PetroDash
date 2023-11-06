@@ -516,7 +516,11 @@ if page == 'Gas Station Map':
     # Display the map
     st.pydeck_chart(map_)
 
-    st.write(cwd + '/image/brands/{brand_logo}.png')
+    path = '.'
+ 
+    files = os.listdir(path)
+    for name in files:
+        st.write(name)
 
 # ---------------------------------------------------------------------------------------------------------------
 # FOOTER
