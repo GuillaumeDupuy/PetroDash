@@ -524,6 +524,16 @@ if page == 'Gas Station Map':
     # Display the map
     st.pydeck_chart(map_)
 
+    path = '.'
+
+    files = os.listdir(path)
+    for name in files:
+        st.write(name)
+
+    from PIL import Image
+    image = Image.open('./images/brands/total.png')
+    st.image(image, caption='test')
+
 # ---------------------------------------------------------------------------------------------------------------
 # Machine Learning
 # ---------------------------------------------------------------------------------------------------------------
