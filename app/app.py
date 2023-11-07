@@ -7,6 +7,7 @@ import requests
 from datetime import datetime
 import os
 import altair as alt
+import re
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -438,7 +439,7 @@ df_price['brand_logo'] = df_price['brand']
 
 # Replace the values of the "brand_logo" column with values without space, without point, without accent & in lowercase
 df_price['brand_logo']  = df_price['brand_logo'].str.replace(' ', '')
-df_price['brand_logo'] = df_price['brand_logo'].str.replace('.', '')
+# df_price['brand_logo'] = df_price['brand_logo'].str.replace('.', '', regex=True)
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('à', 'a')
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('é', 'e')
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('è', 'e')       
@@ -523,16 +524,6 @@ if page == 'Gas Station Map':
 
     # Display the map
     st.pydeck_chart(map_)
-
-    path = '.'
-
-    files = os.listdir(path)
-    for name in files:
-        st.write(name)
-
-    from PIL import Image
-    image = Image.open('./images/brands/total.png')
-    st.image(image, caption='test')
 
 # ---------------------------------------------------------------------------------------------------------------
 # Machine Learning
