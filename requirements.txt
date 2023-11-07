@@ -6,4 +6,4 @@ pyproj
 htbuilder
 datetime
 requests
-sklearn
+scikit-learn
