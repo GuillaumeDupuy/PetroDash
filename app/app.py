@@ -526,6 +526,7 @@ if page == 'Gas Station Map':
 
     st.write(cwd + '/image/brands/total.png')
     st.image(cwd + '/image/brands/total.png', width=100)
+    st.image('/app/petrodash/image/brands/total.png', width=100)
     st.markdown(
         '<img src="/app/petrodash/image/brands/total.png" height="333" style="border: 5px solid orange">',
         unsafe_allow_html=True,
