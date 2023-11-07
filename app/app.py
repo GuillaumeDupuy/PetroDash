@@ -525,7 +525,7 @@ if page == 'Gas Station Map':
     st.pydeck_chart(map_)
 
     st.markdown(
-        '<img src="./app/static/image/brand/total.png" height="333" style="border: 5px solid orange">',
+        '<img src="./app/petrodash/image/brands/total.png" height="333" style="border: 5px solid orange">',
         unsafe_allow_html=True,
     )
 
