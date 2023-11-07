@@ -8,6 +8,13 @@ from datetime import datetime
 import os
 import altair as alt
 
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, accuracy_score, classification_report
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+
 # ---------------------------------------------------------------------------------------------------------------
 # Import modules
 # ---------------------------------------------------------------------------------------------------------------
@@ -65,10 +72,11 @@ pages = [
     'Search city',
     'Search region',
     'Gas Station Map',
+    'Machine Learning',
 ]
 
 # Page selection
-page = st.sidebar.radio('Go to', pages)
+page = st.sidebar.selectbox('Select a page', pages)
 
 # ---------------------------------------------------------------------------------------------------------------
 # Page layout
@@ -430,7 +438,7 @@ df_price['brand_logo'] = df_price['brand']
 
 # Replace the values of the "brand_logo" column with values without space, without point, without accent & in lowercase
 df_price['brand_logo']  = df_price['brand_logo'].str.replace(' ', '')
-df_price['brand_logo'] = df_price['brand_logo'].str.replace('.', '', regex=True)
+df_price['brand_logo'] = df_price['brand_logo'].str.replace('.', '')
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('à', 'a')
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('é', 'e')
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('è', 'e')       
@@ -515,6 +523,77 @@ if page == 'Gas Station Map':
 
     # Display the map
     st.pydeck_chart(map_)
+
+# ---------------------------------------------------------------------------------------------------------------
+# Machine Learning
+# ---------------------------------------------------------------------------------------------------------------
+
+if page == 'Machine Learning':
+
+    st.write('<br><br>', unsafe_allow_html=True)
+
+    st.title('Machine Learning')
+
+    st.write("BlaBla")
+
+    st.write('<br>', unsafe_allow_html=True)
+
+    data = pd.read_csv(cwd + '/data/prix-des-carburants-en-france-flux-instantane-v2.csv', sep=';',parse_dates=['gazole_maj', 'sp95_maj', 'sp98_maj', 'e10_maj', 'e85_maj', 'gplc_maj'])
+
+    st.title('Predict the price of fuel')
+
+    type_carburant = st.selectbox("Write or choose the carburant for you want to see",name_carburants, key="carburant_selectbox")
+
+    ville = st.selectbox("Write or choose the city for which you want to see the average price",name_villes)
+
+    # Select the data for the machine learning
+    data_fuels = data[[f'{type_carburant.lower()}_maj', 'latitude', 'longitude', f'{type_carburant.lower()}_prix']].copy()
+
+    # Delete the rows with missing values
+    data_fuels.dropna(inplace=True)
+
+    # Convert the date to a timestamp
+    data_fuels.loc[:, f'{type_carburant.lower()}_maj'] = data_fuels[f'{type_carburant.lower()}_maj'].apply(lambda x: x.timestamp())
+
+
+    # Split the data into training and test sets
+    X = data_fuels[[f'{type_carburant.lower()}_maj', 'latitude', 'longitude']]
+    y = data_fuels[f'{type_carburant.lower()}_prix']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Create a pipeline
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),  # Standardize the data
+        ('regressor', LinearRegression())  # Fit a linear regression model
+    ])
+
+    # Fit the pipeline to the training data
+    pipeline.fit(X_train, y_train)
+
+    # Make predictions on the test set
+    y_pred = pipeline.predict(X_test)
+
+    # Evaluate the model
+    mse = mean_squared_error(y_test, y_pred)
+    st.write(f'Diesel mean square error : {mse}')
+
+    # Recover the city coordinates
+    latitude = data[data['ville'] == ville]['latitude'].iloc[0]
+    longitude = data[data['ville'] == ville]['longitude'].iloc[0]
+
+    # Make predictions on new data
+    nouvelles_donnees = pd.DataFrame({
+        f'{type_carburant.lower()}_maj': [datetime.now().timestamp()],
+        'latitude': [latitude],
+        'longitude': [longitude]
+    })
+
+    prix_predits = pipeline.predict(nouvelles_donnees)
+    # take prix_predits to convert array into float
+    prix_predits = prix_predits[0]
+    # round the price
+    prix_predits = round(prix_predits, 3)
+    st.write(f'Predicted {type_carburant} prices : {prix_predits}')
 
 # ---------------------------------------------------------------------------------------------------------------
 # FOOTER
