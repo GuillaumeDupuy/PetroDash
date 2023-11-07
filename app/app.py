@@ -7,7 +7,6 @@ import requests
 from datetime import datetime
 import os
 import altair as alt
-import re
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -524,6 +523,11 @@ if page == 'Gas Station Map':
 
     # Display the map
     st.pydeck_chart(map_)
+
+    st.markdown(
+        '<img src="./app/static/image/brand/total.png" height="333" style="border: 5px solid orange">',
+        unsafe_allow_html=True,
+    )
 
 # ---------------------------------------------------------------------------------------------------------------
 # Machine Learning
