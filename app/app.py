@@ -438,7 +438,6 @@ df_price['brand_logo'] = df_price['brand']
 
 # Replace the values of the "brand_logo" column with values without space, without point, without accent & in lowercase
 df_price['brand_logo']  = df_price['brand_logo'].str.replace(' ', '')
-# df_price['brand_logo'] = df_price['brand_logo'].str.replace('.', '', regex=True)
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('à', 'a')
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('é', 'e')
 df_price['brand_logo']  = df_price['brand_logo'].str.replace('è', 'e')       
@@ -452,6 +451,7 @@ df_price['brand_logo'] = df_price['brand_logo'].replace('marqueinconnue', 'autre
 df_price['brand_logo'] = df_price['brand_logo'].replace('supermarchesspar', 'spar')
 df_price['brand_logo'] = df_price['brand_logo'].replace('supercasino', 'supermarchecasino')
 df_price['brand_logo'] = df_price['brand_logo'].replace('intermarchecontact', 'intermarche')
+df_price['brand_logo'] = df_price['brand_logo'].replace('e.leclerc', 'eleclerc')
 
 if page == 'Gas Station Map':
     # ---------------------------------------------------------------------------------------------------------------
