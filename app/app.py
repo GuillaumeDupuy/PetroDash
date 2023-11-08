@@ -7,6 +7,7 @@ import requests
 from datetime import datetime
 import os
 import altair as alt
+import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -14,6 +15,7 @@ from sklearn.metrics import mean_squared_error, accuracy_score, classification_r
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.cluster import KMeans
 
 # ---------------------------------------------------------------------------------------------------------------
 # Import modules
@@ -142,7 +144,6 @@ if page == 'Number of stations per fuel':
     st.altair_chart(bar_chart, use_container_width=True)
 
     st.write("The bar chart above displays the number of fuel stations for each type of fuel in France. It offers a visual representation of the availability of different fuel options across the country. This information can be valuable for understanding the distribution of fuel options and their accessibility to consumers in different regions.")
-
 
 if page == 'Average price per fuel':
     # ---------------------------------------------------------------------------------------------------------------
@@ -534,11 +535,31 @@ if page == 'Machine Learning':
 
     st.title('Machine Learning')
 
-    st.write("BlaBla")
+    st.markdown('''
+    In the 'Predict the price of fuel' section, we are using machine learning techniques to predict the price of a specific type of fuel in a chosen city in France. Here's how it works:
+
+    1. **Select Your Preferences**: You can choose the type of fuel (e.g., diesel, e10, sp98) and the city for which you want to predict the fuel price. 
+    2. **Data Preparation**: We extract relevant data, including the timestamp, latitude, longitude, and the price of the selected fuel type. We remove any missing values from the dataset.
+    3. **Training the Model**: We split the data into training and test sets. Then, we create a machine learning pipeline that standardizes the data and uses linear regression to build a predictive model.
+    4. **Model Evaluation**: We evaluate the model's performance by calculating the Mean Square Error (MSE) on the test set, which provides an indication of how well the model predicts fuel prices.
+    5. **Making Predictions**: We use the trained model to make predictions for the selected city's coordinates and the current timestamp. This allows us to estimate the fuel price for the chosen location and type.
+    6. **Visualization**: We create a scatter plot to compare actual prices against predicted prices, providing a visual representation of the model's accuracy.
+                
+    In the 'Clustering of gas stations' section, we use clustering techniques to group gas stations based on their geographical location and fuel prices. Here's a summary of this section:
+    1. **Data Selection**: We use the latitude, longitude, and prices of different fuel types for the clustering task.
+    2. **Data Preprocessing**: Any missing values are replaced with zeros, and the data is standardized using the StandardScaler.
+    3. **K-Means Clustering**: We apply K-Means clustering to group gas stations into clusters. You can choose the number of clusters to create.
+    4. **Cluster Visualization**: We create a scatter plot on a map, with each cluster represented by a different color. You can see the distribution of gas stations in France and how they are grouped based on their attributes.
+                
+    These sections allow you to explore fuel price predictions and the clustering of gas stations in France, providing valuable insights into the fuel market across different regions.''')
 
     st.write('<br>', unsafe_allow_html=True)
 
     data = pd.read_csv(cwd + '/data/prix-des-carburants-en-france-flux-instantane-v2.csv', sep=';',parse_dates=['gazole_maj', 'sp95_maj', 'sp98_maj', 'e10_maj', 'e85_maj', 'gplc_maj'])
+
+    # ---------------------------------------------------------------------------------------------------------------
+    # Linear regression
+    # ---------------------------------------------------------------------------------------------------------------
 
     st.title('Predict the price of fuel')
 
@@ -594,6 +615,58 @@ if page == 'Machine Learning':
     # round the price
     prix_predits = round(prix_predits, 3)
     st.write(f'Predicted {type_carburant} prices : {prix_predits}')
+
+    # Plot the predictions
+    fig, ax = plt.subplots()
+    ax.scatter(y_test, y_pred)
+    ax.set_xlabel('Actual')
+    ax.set_ylabel('Predicted')
+    st.pyplot(fig)
+
+    # ---------------------------------------------------------------------------------------------------------------
+    # Clustering
+    # ---------------------------------------------------------------------------------------------------------------
+
+    st.title('Clustering of gas stations')
+
+    # Select the data for the machine learning
+    selected_features = data[["latitude", "longitude", "gazole_prix", "e10_prix", "sp98_prix", "sp95_prix", "e85_prix", "gplc_prix"]].copy()
+
+    # Replace missing values with 0
+    selected_features.fillna(0, inplace=True)
+
+    # Normalize the data
+    scaler = StandardScaler()
+    scaled_features = scaler.fit_transform(selected_features)
+
+    # Apply K-Means clustering to group gas stations
+    k = 6 # Number of clusters
+    kmeans = KMeans(n_clusters=k, random_state=0)
+    data["cluster"] = kmeans.fit_predict(scaled_features)
+
+    # Create a scatter plot for each cluster
+    fig, ax = plt.subplots()
+    colors = ['b', 'g', 'r', 'c', 'm', 'y']  # Define colors for clusters
+
+    col1, col2 = st.columns(2)
+
+    # Display the number of stations in each cluster
+    for cluster_id in range(k):
+        cluster_data = data[data["cluster"] == cluster_id]
+        with col1:
+            if cluster_id < 3:
+                st.write(f"Cluster {cluster_id}: {len(cluster_data)} stations-service")
+        with col2:
+            if cluster_id > 3:
+                st.write(f"Cluster {cluster_id}: {len(cluster_data)} stations-service")
+        ax.scatter(cluster_data["longitude"], cluster_data["latitude"], c=colors[cluster_id], label=f"Cluster {cluster_id}")
+
+    ax.set_xlabel('Latitude')
+    ax.set_ylabel('Longitude')
+    ax.legend()
+
+    # Display the scatter plot in the Streamlit app
+    st.pyplot(fig)
 
 # ---------------------------------------------------------------------------------------------------------------
 # FOOTER
