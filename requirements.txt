@@ -7,3 +7,4 @@ htbuilder
 datetime
 requests
 scikit-learn
+matplotlib
