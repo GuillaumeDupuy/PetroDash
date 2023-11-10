@@ -596,7 +596,7 @@ if page == 'Machine Learning':
 
     # Evaluate the model
     mse = mean_squared_error(y_test, y_pred)
-    st.write(f'Diesel mean square error : {mse}')
+    st.write(f'{type_carburant} mean square error : {mse}')
 
     # Recover the city coordinates
     latitude = data[data['ville'] == ville]['latitude'].iloc[0]
