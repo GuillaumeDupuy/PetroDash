@@ -614,7 +614,7 @@ if page == 'Machine Learning':
     prix_predits = prix_predits[0]
     # round the price
     prix_predits = round(prix_predits, 3)
-    st.write(f'Predicted {type_carburant} prices : {prix_predits}')
+    st.write(f'Predicted {type_carburant} prices in {ville}: {prix_predits}')
 
     # Plot the predictions
     fig, ax = plt.subplots()
