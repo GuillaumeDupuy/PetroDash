@@ -48,7 +48,7 @@ def load_data_df():
 # Page configuration
 # ---------------------------------------------------------------------------------------------------------------
 st.set_page_config(
-    page_title="PetroDash", page_icon="⛽", initial_sidebar_state="collapsed"
+    page_title="PetroDash", page_icon="⛽", initial_sidebar_state="expanded"
 )
 
 # ---------------------------------------------------------------------------------------------------------------

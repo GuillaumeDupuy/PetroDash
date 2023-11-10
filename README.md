@@ -101,3 +101,8 @@ Feel free to explore and enhance the code as needed.
 
 ## Analysis Report
 
+We observe that among the seven largest brands with the highest number of fuel stations in France, four of them are supermarket brands. Therefore, it can be inferred that supermarkets are the largest fuel distributors in France. Consequently, three fuel-specialized companies dominate the market: Total Energies (with the highest number of stations in France), Total Energies Access, and Avia. Only two of these belong to the same company, Total Energies. It can be concluded that Total Energies is the largest fuel distributor in France.
+
+Analyzing fuel prices, we note that diesel, E10, SP98, and SP95 are around €1.85 - €1.95 on average in mainland France and Corsica, while E85 and GPLc are around €1 on average. A more in-depth analysis of the average price by region reveals that the overall average for all types of fuel is roughly the same, with a difference of 0.5 cents €. However, in Corsica, the average price is higher by 0.10 cents €, reaching 0.30 - 0.80 € for some. It can be deduced that fuel prices are higher in Corsica than in mainland France due to the importation of fuels, which increases costs.
+
+Examining the number of stations per region, Corsica stands out as the region with the fewest stations in France. It can also be inferred that fuel prices are higher in Corsica because there are fewer stations and, consequently, less competition. This leads to the need to travel further to find a station, and stations are more prone to running out of stock, contributing to an increase in fuel prices.
