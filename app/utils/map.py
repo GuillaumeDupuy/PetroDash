@@ -32,11 +32,17 @@ def generate_map(data):
         return {
             "html": """
             <div style="display: flex; flex-direction: row;">
-                <div style="flex: 1;">
+                <div id="fdp" style="flex: 1;">
                     <b>Address</b>: {adresse}<br/>
                     <b>City</b>: {cp} {ville}<br/>
                     <b>Brand</b>: {brand}<br/>
                     <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/brands/{brand_logo}.png" width="70" height="70"><br/>
+                    <script type="text/javascript">
+                        var autorouteValue = "{Autoroute}";
+                        if (autorouteValue === "Yes") {
+                            document.getElementById("fdp").innerHTML += '<img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/Autoroute.png" width="35" height="35"><br/>';
+                        }
+                    </script>
                 </div>
                 <div style="flex: 1;">
                     <b> Image Gazole</b>: <img src="https://raw.githubusercontent.com/GuillaumeDupuy/PetroDash/main/image/fuels/b7.png" width="30" height="30"><br/>

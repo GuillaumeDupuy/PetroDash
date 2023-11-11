@@ -84,6 +84,8 @@ page = st.sidebar.selectbox('Select a page', pages)
 # Page layout
 # ---------------------------------------------------------------------------------------------------------------
 
+st.header('PetroDash')
+
 st.title('Price of fuels in France')
 
 if page == 'Home':
@@ -453,6 +455,8 @@ df_price['brand_logo'] = df_price['brand_logo'].replace('supermarchesspar', 'spa
 df_price['brand_logo'] = df_price['brand_logo'].replace('supercasino', 'supermarchecasino')
 df_price['brand_logo'] = df_price['brand_logo'].replace('intermarchecontact', 'intermarche')
 df_price['brand_logo'] = df_price['brand_logo'].replace('e.leclerc', 'eleclerc')
+
+df_price['Autoroute'] = df_price['pop'].apply(lambda x: 'Yes' if x == 'A' else 'No')
 
 if page == 'Gas Station Map':
     # ---------------------------------------------------------------------------------------------------------------
