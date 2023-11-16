@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 import requests
 from datetime import datetime
+import numpy as np
 import os
 import altair as alt
 import matplotlib.pyplot as plt
@@ -75,6 +76,7 @@ pages = [
     'Search region',
     'Gas Station Map',
     'Machine Learning',
+    'Reinforcement learning',
 ]
 
 # Page selection
@@ -671,6 +673,135 @@ if page == 'Machine Learning':
 
     # Display the scatter plot in the Streamlit app
     st.pyplot(fig)
+
+# ---------------------------------------------------------------------------------------------------------------
+# Reinforcement learning
+# ---------------------------------------------------------------------------------------------------------------
+
+if page == 'Reinforcement learning':
+
+    st.write('<br><br>', unsafe_allow_html=True)
+
+    st.title('Reinforcement learning')
+
+    st.markdown('''
+    Reinforcement Learning for Fuel Price Optimization
+
+    In this section, we utilize the epsilon-greedy algorithm to optimize fuel prices effectively.
+
+    The epsilon-greedy algorithm explores and exploits different fuel pricing strategies. Here's a brief overview:
+
+    - We use the epsilon-greedy algorithm with incremental updates.
+    - The algorithm dynamically adjusts its strategy to find the best fuel price.
+    - We analyze the algorithm's performance with varying epsilon values (0.1, 0.5, and 1).
+    ''')
+
+    st.write('<br>', unsafe_allow_html=True)
+
+    data = pd.read_csv(cwd + '/data/prix-des-carburants-en-france-flux-instantane-v2.csv', sep=';')
+
+    # ---------------------------------------------------------------------------------------------------------------
+    # Epsilon-greedy algorithm
+    # ---------------------------------------------------------------------------------------------------------------
+
+    st.title('Epsilon-greedy algorithm')
+
+    class EpsilonGreedy():
+        """
+        Epsilon Greedy with incremental update.
+        Based on Sutton and Barto pseudo-code, page. 24
+        """
+        def __init__(self, data, epsilon):
+            self.data = data
+            self.epsilon = epsilon
+            self.arm_count = len(data)
+            self.Q = np.zeros(self.arm_count)  # q-value of actions
+            self.N = np.zeros(self.arm_count)  # action count
+
+        @staticmethod
+        def name():
+            return 'epsilon-greedy'
+
+        def get_action(self):
+            if np.random.uniform(0, 1) > self.epsilon:
+                action = self.Q.argmax()
+            else:
+                action = np.random.randint(0, self.arm_count)
+            return action
+
+        def get_reward_regret(self, data):
+            reward = data['gazole_prix']  # reward is the price of the gazole
+            regret = self.data['gazole_prix'].max() - reward
+            return reward, regret
+
+        def _update_params(self, arm, reward):
+            self.N[arm] += 1  # increment action count
+            self.Q[arm] += 1 / self.N[arm] * (reward - self.Q[arm])  # inc. update rule
+
+    epsilon_01 = EpsilonGreedy(data, epsilon=0.1)
+
+    # Run the algorithm
+    for i in range(1000):
+        action = epsilon_01.get_action()
+        reward, regret = epsilon_01.get_reward_regret(data.iloc[i])
+        epsilon_01._update_params(action, reward)
+
+    epsilon_05 = EpsilonGreedy(data, epsilon=0.5)
+
+    # Run the algorithm
+    for i in range(1000):
+        action = epsilon_05.get_action()
+        reward, regret = epsilon_05.get_reward_regret(data.iloc[i])
+        epsilon_05._update_params(action, reward)
+
+    epsilon_1 = EpsilonGreedy(data, epsilon=1)
+
+    # Run the algorithm
+    for i in range(1000):
+        action = epsilon_1.get_action()
+        reward, regret = epsilon_1.get_reward_regret(data.iloc[i])
+        epsilon_1._update_params(action, reward)
+
+    # Plot the results for Number of times action was selected
+    fig1, ax1 = plt.subplots()
+    ax1.plot(epsilon_01.N, label='epsilon=0.1')
+    ax1.plot(epsilon_05.N, label='epsilon=0.5')
+    ax1.plot(epsilon_1.N, label='epsilon=1')
+    ax1.set_xlabel('Action')
+    ax1.set_ylabel('Number of times action was selected')
+    ax1.legend()
+    st.pyplot(fig1)
+
+    # Plot the results for Value of the action
+    fig2, ax2 = plt.subplots()
+    ax2.plot(epsilon_01.Q, label='epsilon=0.1')
+    ax2.plot(epsilon_05.Q, label='epsilon=0.5')
+    ax2.plot(epsilon_1.Q, label='epsilon=1')
+    ax2.set_xlabel('Action')
+    ax2.set_ylabel('Value of the action')
+    ax2.legend()
+    st.pyplot(fig2)
+
+    # Log scale plot of epsilon greedy
+    fig3, ax3 = plt.subplots()
+    ax3.plot(epsilon_01.N * epsilon_01.Q, label='epsilon=0.1')
+    ax3.plot(epsilon_05.N * epsilon_05.Q, label='epsilon=0.5')
+    ax3.plot(epsilon_1.N * epsilon_1.Q, label='epsilon=1')
+    ax3.legend()
+    ax3.set_xscale('log')
+    ax3.set_xlabel('Action')
+    ax3.set_ylabel('Value of the action')
+    st.pyplot(fig3)
+
+    # Plot moving average ctr
+    fig4, ax4 = plt.subplots()
+    ax4.plot(epsilon_01.N * epsilon_01.Q, label='epsilon=0.1')
+    ax4.plot(epsilon_05.N * epsilon_05.Q, label='epsilon=0.5')
+    ax4.plot(epsilon_1.N * epsilon_1.Q, label='epsilon=1')
+    ax4.legend()
+    ax4.set_xlabel('Action')
+    ax4.set_ylabel('Value of the action')
+    st.pyplot(fig4)
 
 # ---------------------------------------------------------------------------------------------------------------
 # FOOTER
