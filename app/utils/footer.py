@@ -59,9 +59,9 @@ def layout(*args):
         text_align="center",
         font_family="Arial, sans-serif",
         opacity=1,
-        position="fixed",
+        position="absolute",
         left=0,
-        bottom=0,
+        bottom=-300,
     )
 
     style_hr = styles(
